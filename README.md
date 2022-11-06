@@ -1,2 +1,15 @@
-# Udacity-Predict-Customer-Churn-with-Clean-Code
-Udacity proejct#1 machine Learning DevOps Engineer nano degree
+# Predict Customer Churn
+
+- Project **Predict Customer Churn** of ML DevOps Engineer Nanodegree Udacity
+
+## Project Description
+Your project description here.
+
+## Files and data description
+Overview of the files and data present in the root directory. 
+
+## Running Files
+How do you run your files? What should happen when you run your files?
+
+
+
