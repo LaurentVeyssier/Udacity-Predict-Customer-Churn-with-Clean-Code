@@ -9,9 +9,11 @@ import pandas as pd
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import plot_roc_curve, classification_report
+from sklearn.metrics import plot_roc_curve, classification_report, plot_confusion_matrix
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
 
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
@@ -38,7 +40,52 @@ def perform_eda(df):
     output:
                     None
     '''
-    pass
+    # Analyze categorical features and plot distribution
+    cat_columns = df.select_dtypes(include='object').columns.tolist()
+    for cat_column in cat_columns:
+        plt.figure(figsize=(7, 4))
+        (df[cat_column]
+            .value_counts('normalize')
+            .plot(kind='bar',
+                  rot=45,
+                  title=f'{cat_column} - % Churn')
+
+         )
+        plt.savefig(os.path.join("./images/eda", f'{cat_column}.png'),
+                    box_inches='tight')
+        plt.show()
+
+    # Analyze Numeric features
+    plt.figure(figsize=(10, 5))
+    (df['Customer_Age']
+        .plot(kind='hist',
+              title='Distribution of Customer Age')
+     )
+    plt.savefig(os.path.join("./images/eda", 'Customer_Age.png'),
+                box_inches='tight')
+    plt.show()
+
+    plt.figure(figsize=(10, 5))
+    # Show distributions of 'Total_Trans_Ct' and add a smooth curve obtained
+    # using a kernel density estimate
+    sns.histplot(df['Total_Trans_Ct'], stat='density', kde=True)
+    plt.show()
+
+    # plot correlation matrix
+    plt.figure(figsize=(15, 7))
+    sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths=2)
+    plt.savefig(os.path.join("./images/eda", 'correlation_matrix.png'),
+                box_inches='tight')
+    plt.show()
+
+    plt.figure(figsize=(15, 7))
+    (df[['Total_Trans_Amt', 'Total_Trans_Ct']]
+        .plot(x='Total_Trans_Amt',
+              y='Total_Trans_Ct',
+              kind='scatter',
+              title='Correlation analysis between 2 features')
+     )
+    plt.show()
 
 
 def encoder_helper(df, category_lst, response='Churn'):
@@ -231,6 +278,39 @@ def feature_importance_plot(model, X_data, output_pth):
 	print(classification_report(y, preds))"""
 
 
+def confusion_matrix(model, model_name, X_test, y_test):
+    '''
+	Display confusion matrix of a model on test data
+	input:
+			model: trained model
+            X_test: X testing data
+			y_test: y testing data
+	output:
+			None
+	'''
+    class_names = ['Not Churned', 'Churned']
+    plt.figure(figsize=(15, 5))
+    ax = plt.gca()
+    plot_confusion_matrix(model, 
+                        X_test, 
+                        y_test, 
+                        display_labels=class_names, 
+                        cmap=plt.cm.Blues, 
+                        xticks_rotation='horizontal', 
+                        colorbar=False, 
+                        ax=ax)
+    # Hide grid lines
+    ax.grid(False)
+    plt.title(f'{model_name} Confusion Matrix on test data')
+    plt.savefig(
+        os.path.join(
+            "./images/results",
+            f'{model_name}_Confusion_Matrix'),
+        bbox_inches='tight')
+    plt.show()
+
+
+
 def train_models(X_train, X_test, y_train, y_test):
     '''
     train, store model results: images + scores, and store models
@@ -310,6 +390,11 @@ def train_models(X_train, X_test, y_train, y_test):
     # save best model
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
     joblib.dump(lrc, './models/logistic_model.pkl')
+
+    # Display confusion matrix on test data
+    confusion_matrix(cv_rfc.best_estimator_, 'Random Forest', X_test, y_test)
+    confusion_matrix(lrc, 'Logistic Regression', X_test, y_test)
+
 
 
 if __name__ == "__main__":
