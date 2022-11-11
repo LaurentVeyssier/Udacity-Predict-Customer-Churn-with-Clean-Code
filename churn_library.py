@@ -29,40 +29,40 @@ def import_data(pth):
     input:
                     pth: a path to the csv
     output:
-                    df: pandas dataframe
+                    dataframe: pandas dataframe
     '''
-    df = pd.read_csv(pth, index_col=0)
+    dataframe = pd.read_csv(pth, index_col=0)
 
     # Encode Churn dependent variable : 0 = Did not churned ; 1 = Churned
-    df['Churn'] = df['Attrition_Flag'].apply(lambda val: 
-                                            0 if val == "Existing Customer" 
-                                            else 1)
+    dataframe['Churn'] = dataframe['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
 
-    # Drop redudant Attrition_Flag variable (replaced by Churn response variable)
-    df.drop('Attrition_Flag', axis=1, inplace=True)
-    
+    # Drop redudant Attrition_Flag variable (replaced by Churn response
+    # variable)
+    dataframe.drop('Attrition_Flag', axis=1, inplace=True)
+
     # Drop variable not relevant for the prediction model
-    df.drop('CLIENTNUM', axis=1, inplace=True)
+    dataframe.drop('CLIENTNUM', axis=1, inplace=True)
 
-    return df
+    return dataframe
 
 
-def perform_eda(df):
+def perform_eda(dataframe):
     '''
-    perform eda on df and save figures to images folder
+    perform eda on dataframe and save figures to images folder
 
     input:
-                    df: pandas dataframe
+                    dataframe: pandas dataframe
 
     output:
                     None
     '''
 
     # Analyze categorical features and plot distribution
-    cat_columns = df.select_dtypes(include='object').columns.tolist()
+    cat_columns = dataframe.select_dtypes(include='object').columns.tolist()
     for cat_column in cat_columns:
         plt.figure(figsize=(7, 4))
-        (df[cat_column]
+        (dataframe[cat_column]
             .value_counts('normalize')
             .plot(kind='bar',
                   rot=45,
@@ -72,72 +72,80 @@ def perform_eda(df):
         plt.savefig(os.path.join("./images/eda", f'{cat_column}.png'),
                     box_inches='tight')
         plt.show()
+        plt.close()
 
     # Analyze Numeric features
     plt.figure(figsize=(10, 5))
-    (df['Customer_Age']
+    (dataframe['Customer_Age']
         .plot(kind='hist',
               title='Distribution of Customer Age')
      )
     plt.savefig(os.path.join("./images/eda", 'Customer_Age.png'),
                 box_inches='tight')
     plt.show()
+    plt.close()
 
     plt.figure(figsize=(10, 5))
     # Show distributions of 'Total_Trans_Ct' and add a smooth curve obtained
     # using a kernel density estimate
-    sns.histplot(df['Total_Trans_Ct'], stat='density', kde=True)
+    sns.histplot(dataframe['Total_Trans_Ct'], stat='density', kde=True)
     plt.show()
+    plt.close()
 
     # plot correlation matrix
     plt.figure(figsize=(15, 7))
-    sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths=2)
+    sns.heatmap(dataframe.corr(), annot=False, cmap='Dark2_r', linewidths=2)
     plt.savefig(os.path.join("./images/eda", 'correlation_matrix.png'),
                 box_inches='tight')
     plt.show()
+    plt.close()
 
     plt.figure(figsize=(15, 7))
-    (df[['Total_Trans_Amt', 'Total_Trans_Ct']]
+    (dataframe[['Total_Trans_Amt', 'Total_Trans_Ct']]
         .plot(x='Total_Trans_Amt',
               y='Total_Trans_Ct',
               kind='scatter',
               title='Correlation analysis between 2 features')
      )
     plt.show()
+    plt.close()
 
 
-def encoder_helper(df, category_lst, response='Churn'):
+def encoder_helper(dataframe, category_lst, response='Churn'):
     '''
     helper function to turn each categorical column into a new column with
     propotion of churn for each category - associated with cell 15 from the notebook
 
     input:
-                    df: pandas dataframe
+                    dataframe: pandas dataframe
                     category_lst: list of columns that contain categorical features
-                    response: string of response name [optional argument that could be used for naming variables or index y column]
+                    response: string of response name [optional argument that
+                    could be used for naming variables or index y column]
 
     output:
-                    df: pandas dataframe with new columns for
+                    dataframe: pandas dataframe with new columns for
     '''
     for category in category_lst:
-        category_groups = df.groupby(category).mean()[response]
+        category_groups = dataframe.groupby(category).mean()[response]
         new_feature = category + '_' + response
-        df[new_feature] = df[category].apply(lambda x: category_groups.loc[x])
+        dataframe[new_feature] = dataframe[category].apply(
+            lambda x: category_groups.loc[x])
 
-    # Drop the obsolete categorical features of the category_lst 
-    df.drop(category_lst, axis=1, inplace=True)
+    # Drop the obsolete categorical features of the category_lst
+    dataframe.drop(category_lst, axis=1, inplace=True)
 
-    return df
+    return dataframe
 
 
-def perform_feature_engineering(df, response='Churn'):
+def perform_feature_engineering(dataframe, response='Churn'):
     '''
-    Converts remaining categorical using one-hot encoding adding the response 
+    Converts remaining categorical using one-hot encoding adding the response
     str prefix to new columns Then generate train and test datasets
 
     input:
-                      df: pandas dataframe
-                      response: string of response name [optional argument that could be used for naming variables or index y column]
+                      dataframe: pandas dataframe
+                      response: string of response name [optional argument that
+                      could be used for naming variables or index y column]
 
     output:
                       X_train: X training data
@@ -147,16 +155,16 @@ def perform_feature_engineering(df, response='Churn'):
     '''
 
     # Collect categorical features to be encoded
-    cat_columns = df.select_dtypes(include='object').columns.tolist()
-    
+    cat_columns = dataframe.select_dtypes(include='object').columns.tolist()
+
     # Encode categorical features using mean of response variable on category
-    df = encoder_helper(df, cat_columns, response='Churn')
+    dataframe = encoder_helper(dataframe, cat_columns, response='Churn')
     # Alternative to the encodign approach above - Not used here
     # convert categorical features to dummy variable
     #df = pd.get_dummies(df, columns=cat_columns, drop_first=True, prefix=response)
 
-    y = df[response]
-    X = df.drop(response, axis=1)
+    y = dataframe[response]
+    X = dataframe.drop(response, axis=1)
     # train test split
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
@@ -170,8 +178,8 @@ def plot_classification_report(model_name,
                                y_train_preds,
                                y_test_preds):
     '''
-    produces classification report for training and testing results and stores report as image
-    in images folder
+    produces classification report for training and testing results and stores
+    report as image in images folder
 
     input:
                     model_name: (str) name of the model, ie 'Random Forest'
@@ -222,6 +230,7 @@ def plot_classification_report(model_name,
 
     # Display figure
     plt.show()
+    plt.close()
 
 
 def classification_report_image(y_train,
@@ -231,8 +240,9 @@ def classification_report_image(y_train,
                                 y_test_preds_lr,
                                 y_test_preds_rf):
     '''
-    produces classification report for training and testing results and stores report as image
-    in images folder using plot_classification_report helper function
+    produces classification report for training and testing results and stores
+    report as image in images folder using plot_classification_report
+    helper function
 
     input:
                     y_train: training response values
@@ -251,12 +261,14 @@ def classification_report_image(y_train,
                                y_test,
                                y_train_preds_lr,
                                y_test_preds_lr)
+    plt.close()
 
     plot_classification_report('Random Forest',
                                y_train,
                                y_test,
                                y_train_preds_rf,
                                y_test_preds_rf)
+    plt.close()
 
 
 def feature_importance_plot(model, X_data, output_pth):
@@ -299,30 +311,31 @@ def feature_importance_plot(model, X_data, output_pth):
 
     # display feature importance figure
     plt.show()
+    plt.close()
 
 
 def confusion_matrix(model, model_name, X_test, y_test):
     '''
-	Display confusion matrix of a model on test data
+        Display confusion matrix of a model on test data
 
-	input:
-			model: trained model
+        input:
+                        model: trained model
             X_test: X testing data
-			y_test: y testing data
-	output:
-			None
-	'''
+                        y_test: y testing data
+        output:
+                        None
+        '''
     class_names = ['Not Churned', 'Churned']
     plt.figure(figsize=(15, 5))
     ax = plt.gca()
-    plot_confusion_matrix(model, 
-                        X_test, 
-                        y_test, 
-                        display_labels=class_names, 
-                        cmap=plt.cm.Blues, 
-                        xticks_rotation='horizontal', 
-                        colorbar=False, 
-                        ax=ax)
+    plot_confusion_matrix(model,
+                          X_test,
+                          y_test,
+                          display_labels=class_names,
+                          cmap=plt.cm.Blues,
+                          xticks_rotation='horizontal',
+                          colorbar=False,
+                          ax=ax)
     # Hide grid lines
     ax.grid(False)
     plt.title(f'{model_name} Confusion Matrix on test data')
@@ -332,7 +345,7 @@ def confusion_matrix(model, model_name, X_test, y_test):
             f'{model_name}_Confusion_Matrix'),
         bbox_inches='tight')
     plt.show()
-
+    plt.close()
 
 
 def train_models(X_train, X_test, y_train, y_test):
@@ -397,6 +410,8 @@ def train_models(X_train, X_test, y_train, y_test):
         ax=ax,
         alpha=0.8
     )
+    plt.close()
+
     plot_roc_curve(lrc, X_test, y_test, ax=ax, alpha=0.8)
 
     # save ROC-curves to images directory
@@ -405,6 +420,7 @@ def train_models(X_train, X_test, y_train, y_test):
             "./images/results",
             'ROC_curves.png'),
         bbox_inches='tight')
+    plt.close()
 
     # save best model
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
@@ -412,8 +428,9 @@ def train_models(X_train, X_test, y_train, y_test):
 
     # Display confusion matrix on test data
     confusion_matrix(cv_rfc.best_estimator_, 'Random Forest', X_test, y_test)
+    plt.close()
     confusion_matrix(lrc, 'Logistic Regression', X_test, y_test)
-
+    plt.close()
 
 
 if __name__ == "__main__":

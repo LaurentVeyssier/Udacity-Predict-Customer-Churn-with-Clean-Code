@@ -1,4 +1,8 @@
-"""Unit test of churn_library.py module with pytest"""
+"""
+Unit test of churn_library.py module with pytest
+author: Laurent veyssier
+Date: Nov. 11th 2022
+"""
 
 import logging
 import pytest
@@ -79,7 +83,8 @@ def input_train():
                           "./data/no_file.csv"])
 def test_import(filename):
     '''
-    test data import - this example is completed for you to assist with the other test functions
+    test data import - this example is completed for you to assist with the
+    other test functions
     '''
     two_test_level = False
 
@@ -164,7 +169,7 @@ def test_perform_feature_engineering():
     try:
         # get dataset from pytest Namespace
         data = pytest.df
-        X_train, X_test, y_train, y_test=perform_feature_engineering(data)
+        X_train, X_test, y_train, y_test = perform_feature_engineering(data)
         logging.info("Testing perform_feature_engineering - SUCCESS")
         two_test_level = True
 
