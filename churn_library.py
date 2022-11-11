@@ -1,5 +1,9 @@
 # library doc string
-"""Helper functions """
+"""
+Helper functions for Predicting customer Churn notebook
+author: Laurent veyssier
+Date: Nov. 9th 2022
+"""
 
 # import libraries
 import os
@@ -28,18 +32,32 @@ def import_data(pth):
                     df: pandas dataframe
     '''
     df = pd.read_csv(pth, index_col=0)
+
+    # Encode Churn dependent variable : 0 = Did not churned ; 1 = Churned
+    df['Churn'] = df['Attrition_Flag'].apply(lambda val: 
+                                            0 if val == "Existing Customer" 
+                                            else 1)
+
+    # Drop redudant Attrition_Flag variable (replaced by Churn response variable)
+    df.drop('Attrition_Flag', axis=1, inplace=True)
+    
+    # Drop variable not relevant for the prediction model
+    df.drop('CLIENTNUM', axis=1, inplace=True)
+
     return df
 
 
 def perform_eda(df):
     '''
     perform eda on df and save figures to images folder
+
     input:
                     df: pandas dataframe
 
     output:
                     None
     '''
+
     # Analyze categorical features and plot distribution
     cat_columns = df.select_dtypes(include='object').columns.tolist()
     for cat_column in cat_columns:
@@ -106,11 +124,17 @@ def encoder_helper(df, category_lst, response='Churn'):
         new_feature = category + '_' + response
         df[new_feature] = df[category].apply(lambda x: category_groups.loc[x])
 
+    # Drop the obsolete categorical features of the category_lst 
+    df.drop(category_lst, axis=1, inplace=True)
+
     return df
 
 
 def perform_feature_engineering(df, response='Churn'):
     '''
+    Converts remaining categorical using one-hot encoding adding the response 
+    str prefix to new columns Then generate train and test datasets
+
     input:
                       df: pandas dataframe
                       response: string of response name [optional argument that could be used for naming variables or index y column]
@@ -121,6 +145,16 @@ def perform_feature_engineering(df, response='Churn'):
                       y_train: y training data
                       y_test: y testing data
     '''
+
+    # Collect categorical features to be encoded
+    cat_columns = df.select_dtypes(include='object').columns.tolist()
+    
+    # Encode categorical features using mean of response variable on category
+    df = encoder_helper(df, cat_columns, response='Churn')
+    # Alternative to the encodign approach above - Not used here
+    # convert categorical features to dummy variable
+    #df = pd.get_dummies(df, columns=cat_columns, drop_first=True, prefix=response)
+
     y = df[response]
     X = df.drop(response, axis=1)
     # train test split
@@ -138,6 +172,7 @@ def plot_classification_report(model_name,
     '''
     produces classification report for training and testing results and stores report as image
     in images folder
+
     input:
                     model_name: (str) name of the model, ie 'Random Forest'
                     y_train: training response values
@@ -198,6 +233,7 @@ def classification_report_image(y_train,
     '''
     produces classification report for training and testing results and stores report as image
     in images folder using plot_classification_report helper function
+
     input:
                     y_train: training response values
                     y_test:  test response values
@@ -226,6 +262,7 @@ def classification_report_image(y_train,
 def feature_importance_plot(model, X_data, output_pth):
     '''
     creates and stores the feature importances in pth
+
     input:
                     model: model object containing feature_importances_
                     X_data: pandas dataframe of X values
@@ -264,23 +301,10 @@ def feature_importance_plot(model, X_data, output_pth):
     plt.show()
 
 
-"""def classification_score(dataset, y, preds):
-	'''
-	calculate classification score
-	input:
-			dataset: (str) train or test dataset type
-			y: ground truth data
-			preds: predictions
-	output:
-			None
-	'''
-	print(f'{dataset} results')
-	print(classification_report(y, preds))"""
-
-
 def confusion_matrix(model, model_name, X_test, y_test):
     '''
 	Display confusion matrix of a model on test data
+
 	input:
 			model: trained model
             X_test: X testing data
@@ -314,6 +338,7 @@ def confusion_matrix(model, model_name, X_test, y_test):
 def train_models(X_train, X_test, y_train, y_test):
     '''
     train, store model results: images + scores, and store models
+
     input:
                       X_train: X training data
                       X_test: X testing data
@@ -331,7 +356,7 @@ def train_models(X_train, X_test, y_train, y_test):
     # Reference:
     # https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 
-    # grid search for random forest
+    # grid search for random forest parameters and instantiation
     param_grid = {
         'n_estimators': [200, 500],
         'max_features': ['auto', 'sqrt'],
@@ -361,12 +386,6 @@ def train_models(X_train, X_test, y_train, y_test):
                                 y_train_preds_rf,
                                 y_test_preds_lr,
                                 y_test_preds_rf)
-    '''print('random forest results')
-	classification_score('train', y_train, y_train_preds_rf)
-	classification_score('test', y_test, y_test_preds_rf)
-	print('logistic regression results')
-	classification_score('train', y_train, y_train_preds_lr)
-	classification_score('test', y_test, y_test_preds_lr)'''
 
     # plot ROC-curves
     plt.figure(figsize=(15, 8))
