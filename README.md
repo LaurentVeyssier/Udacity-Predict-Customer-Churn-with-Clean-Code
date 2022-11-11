@@ -3,18 +3,18 @@
 - Project **Predict Customer Churn** of ML DevOps Engineer Nanodegree Udacity
 
 ## Project Description
-This is the first project of Udacity's Machine Learning DevOps Engineer Nanodegree
-The project objective is to produce production-ready clean code using best practices
+This is the first project of Udacity's Machine Learning DevOps Engineer Nanodegree.
+The project objective is to produce production-ready clean code using best practices.
 The project itself aims at predicting customer churn for banking customers. This is a classification problem.
-The project has the following approach:
-- Load and explore dataset (EDA)
-- Prepare data for training (feature engineering)
+The project proposes the following approach:
+- Load and explore the dataset composed of over 10k samples (EDA)
+- Prepare data for training (feature engineering resulting into 19 features)
 - Train two classification models (sklearn random forest and logistic regression)
 - Identify most important features influencing the predictions and visualize their impact using SHAP library
 - Save best models with their performance metrics
 
 ## Files and data description
-Overview of the files and data present in the root directory.
+#### Overview of the files and data present in the root directory
 The project is organized with the following directory architecture:
 - Folders
     - Data      
@@ -34,17 +34,24 @@ The project is organized with the following directory architecture:
     - pytest.ini    
     - conftest.py
 
-    
+![./data/folder.jpg]
+
+
 ## Running Files
-- Execute the project under python 3.8 with the appropriate python packages
-- Required libraries are provided in the requirements.txt file
-- To run the project, execute churn_library.py script from the folder structure
-    -`python churn_library.py`
-- The project can also be executed using the jupyter notebook
-- The project file was tested using pytest python package
-    - To run the tests, type `pytest` from the main project folder in the command line
+- The project should be executed with python 3.8 and the appropriate python packages
+- The required packages are provided in the requirements.txt file
+- To run the project, execute the script `python churn_library.py` from the project folder
+- Alternatively, the project can be executed using the jupyter notebook for a step-by-step approach
+- The project script `churn_library.py` was tested using pytest python package
+    - To run the unit tests, simply type `pytest` from the main project folder in the command line
     - Project functions will be automatically tested with log file generated in the logs folder
 
 
+## Classification performance
 
+Random Forest achieves the best performance on the test set:
+![./images/results/Random Forest_Confusion_Matrix.png]
+
+The influence of each feature on the prediction to churn can be visualized using SHAP module:
+![./images/results/summary_shap.png]
 
