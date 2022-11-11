@@ -34,7 +34,7 @@ The project is organized with the following directory architecture:
     - pytest.ini    
     - conftest.py
 
-![./data/folder.jpg]
+![](./data/folder.jpg)
 
 
 ## Running Files
@@ -50,8 +50,8 @@ The project is organized with the following directory architecture:
 ## Classification performance
 
 Random Forest achieves the best performance on the test set:
-![./images/results/Random Forest_Confusion_Matrix.png]
+![](./images/results/Random Forest_Confusion_Matrix.png)
 
 The influence of each feature on the prediction to churn can be visualized using SHAP module:
-![./images/results/summary_shap.png]
+![](./images/results/summary_shap.png)
 
