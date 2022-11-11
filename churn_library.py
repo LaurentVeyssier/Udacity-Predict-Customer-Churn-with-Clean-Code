@@ -410,8 +410,7 @@ def train_models(X_train, X_test, y_train, y_test):
         ax=ax,
         alpha=0.8
     )
-    plt.close()
-
+    
     plot_roc_curve(lrc, X_test, y_test, ax=ax, alpha=0.8)
 
     # save ROC-curves to images directory
@@ -427,9 +426,9 @@ def train_models(X_train, X_test, y_train, y_test):
     joblib.dump(lrc, './models/logistic_model.pkl')
 
     # Display confusion matrix on test data
-    confusion_matrix(cv_rfc.best_estimator_, 'Random Forest', X_test, y_test)
+    confusion_matrix(cv_rfc.best_estimator_, 'Random_Forest', X_test, y_test)
     plt.close()
-    confusion_matrix(lrc, 'Logistic Regression', X_test, y_test)
+    confusion_matrix(lrc, 'Logistic_Regression', X_test, y_test)
     plt.close()
 
 
