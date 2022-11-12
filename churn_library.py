@@ -271,7 +271,7 @@ def classification_report_image(y_train,
     plt.close()
 
 
-def feature_importance_plot(model, X_data, output_pth):
+def feature_importance_plot(model, X_data, model_name, output_pth):
     '''
     creates and stores the feature importances in pth
 
@@ -296,7 +296,7 @@ def feature_importance_plot(model, X_data, output_pth):
     plt.figure(figsize=(20, 5))
 
     # Create plot title
-    plt.title("Feature Importance")
+    plt.title(f"Feature Importance for {model_name}")
     plt.ylabel('Importance')
 
     # Add bars
@@ -306,7 +306,7 @@ def feature_importance_plot(model, X_data, output_pth):
     plt.xticks(range(X_data.shape[1]), names, rotation=90)
 
     # Save figure to output_pth
-    fig_name = 'feature_importance.png'
+    fig_name = f'feature_importance_{model_name}.png'
     plt.savefig(os.path.join(output_pth, fig_name), bbox_inches='tight')
 
     # display feature importance figure
@@ -425,12 +425,26 @@ def train_models(X_train, X_test, y_train, y_test):
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
     joblib.dump(lrc, './models/logistic_model.pkl')
 
-    # Display confusion matrix on test data
-    confusion_matrix(cv_rfc.best_estimator_, 'Random_Forest', X_test, y_test)
-    plt.close()
-    confusion_matrix(lrc, 'Logistic_Regression', X_test, y_test)
-    plt.close()
+    for model, model_type in zip([cv_rfc.best_estimator_, lrc], 
+                                 ['Random_Forest', 'Logistic_Regression']
+                                 ):
+
+        # Display confusion matrix on test data
+        confusion_matrix(model, model_type, X_test, y_test)
+
+    # Display feature importance on train data
+    feature_importance_plot(cv_rfc.best_estimator_,
+                            X_train, 
+                            'Random_Forest', 
+                            "./images/results")
 
 
 if __name__ == "__main__":
-    pass
+    dataset = import_data("./data/bank_data.csv")
+    print('Dataset successfully loaded...Now conducting data exploration')
+    perform_eda(dataset)
+    X_train, X_test, y_train, y_test = perform_feature_engineering(dataset, response='Churn')
+    print('Start training the data...please wait')
+    train_models(X_train, X_test, y_train, y_test)
+    print('Training completed. Best model weights + performance matrics saved')
+
