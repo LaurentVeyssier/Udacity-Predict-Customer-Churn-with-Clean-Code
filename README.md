@@ -51,7 +51,7 @@ The project is organized with the following directory architecture:
 
 Random Forest achieves the best performance on the test set:
 - superior ROC curve:
-![](./images/results/ROC_curve.png)
+![](./images/results/ROC_curves.png)
 
 - strong confusion matrix although still generating false negative which could be an issue given our objective to detect churn likelyhood:
 ![](./images/results/Random_Forest_Confusion_Matrix.png)
