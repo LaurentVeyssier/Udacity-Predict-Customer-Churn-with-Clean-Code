@@ -13,6 +13,10 @@ The project proposes the following approach:
 - Identify most important features influencing the predictions and visualize their impact using SHAP library
 - Save best models with their performance metrics
 
+
+Both .py files were adjusted to the PEP8 standard using autopep8 module. In addition they both achieve scores above 8.0 using pylint clean code module.
+
+
 ## Files and data description
 #### Overview of the files and data present in the root directory
 The project is organized with the following directory architecture:
