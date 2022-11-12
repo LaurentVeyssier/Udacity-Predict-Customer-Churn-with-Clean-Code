@@ -58,6 +58,7 @@ Random Forest achieves the best performance on the test set:
 ![](./images/results/ROC_curves.png)
 
 - strong confusion matrix although still generating false negative which could be an issue given our objective to detect churn likelyhood:
+
 ![](./images/results/Random_Forest_Confusion_Matrix.png)
 
 The influence of each feature on the prediction to churn can be visualized using SHAP module (feature pushing towards churn to the right of the y-axis):
