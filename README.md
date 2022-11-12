@@ -14,7 +14,7 @@ The project proposes the following approach:
 - Save best models with their performance metrics
 
 
-Both .py files were adjusted to the PEP8 standard using autopep8 module. In addition they both achieve scores above 8.0 using pylint clean code module.
+the script .py file was adjusted to the PEP8 standard using autopep8 module. In addition it scores above 8.0 using pylint clean code module.
 
 
 ## Files and data description
