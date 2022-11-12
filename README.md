@@ -57,5 +57,6 @@ Random Forest achieves the best performance on the test set:
 ![](./images/results/Random_Forest_Confusion_Matrix.png)
 
 The influence of each feature on the prediction to churn can be visualized using SHAP module (feature pushing towards churn to the right of the y-axis):
+
 ![](./images/SHAP/summary_shap.png)
 
